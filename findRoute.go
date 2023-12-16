@@ -5,17 +5,23 @@ import (
 	"fmt"
 	"log"
 	"os"
-)
-
-func FindRoute() {
+	"io"
+)	
 	
 
+func FindRoute() {
+	logfile, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+if err != nil {
+    log.Fatal(err)
+}
+logger := log.New(io.MultiWriter(os.Stdout, logfile), "INFO: ", log.Ldate|log.Ltime)
+	logger.Println("Opening CSV")
 	file, err := os.Open(CsvFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
+	logger.Println("CSV Opened")
 	reader := csv.NewReader(file)
 
 	header, err := reader.Read()
@@ -28,6 +34,7 @@ func FindRoute() {
 		colIndex[colName] = i
 	}
 
+	logger.Println("Gathering User Input...")
 	fmt.Print("Enter the criteria to search for (Origin, Route, Dest, Altitude, DCNTR, ACNTR): ")
 	var criteria string
 	fmt.Scanln(&criteria)
@@ -35,10 +42,11 @@ func FindRoute() {
 	fmt.Printf("Enter the value for %s: ", criteria)
 	var searchValue string
 	fmt.Scanln(&searchValue)
-
+	logger.Printf("Input complete. Criteria: '%s' and value is '%s'", criteria, searchValue)
 	var matchingRows []RouteData
 
 	// Read all rows from the CSV file
+	logger.Println("Reading CSV")
 	for {
 		// Read the data from the row
 		row, err := reader.Read()
@@ -62,7 +70,7 @@ func FindRoute() {
 			matchingRows = append(matchingRows, routeData)
 		}
 	}
-
+	logger.Println("CSV Read")
 	// Print the data for matching rows
 	for _, routeData := range matchingRows {
 		fmt.Printf("RouteData: %+v\n", routeData)

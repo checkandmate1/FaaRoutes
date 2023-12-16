@@ -3,21 +3,27 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
 	"os"
 )
 
 func FindRoute2() {
-	
-
+	logfile, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+if err != nil {
+    log.Fatal(err)
+}
+logger := log.New(io.MultiWriter(os.Stdout, logfile), "INFO: ", log.Ldate|log.Ltime)
+	logger.Println("Opening CSV")
+	logger.Println("Opening CSV...")
 	file, err := os.Open(CsvFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
+	logger.Println("Opened")
 	reader := csv.NewReader(file)
-
+	logger.Println("Starting User Input")
 	header, err := reader.Read()
 	if err != nil {
 		log.Fatal(err)
@@ -40,9 +46,11 @@ func FindRoute2() {
 	fmt.Print("Enter the Destination: ")
 	fmt.Scanln(&dest)
 
+	logger.Printf("User input complete. Origin: '%s' Destination: '%s'", ori, dest)
 	var matchingRows []RouteData
 
 	// Read all rows from the CSV file
+	logger.Println("Reading CSV")
 	for {
 		// Read the data from the row
 		row, err := reader.Read()
@@ -67,7 +75,7 @@ func FindRoute2() {
 			matchingRows = append(matchingRows, routeData)
 		}
 	}
-
+	logger.Println("Reading Complete")
 	// Print the data for matching rows
 	for _, routeData := range matchingRows {
 		fmt.Printf("RouteData: %+v\n", routeData)
@@ -78,4 +86,3 @@ func FindRoute2() {
 		fmt.Println("No matching rows found.")
 	}
 }
-

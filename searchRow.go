@@ -3,22 +3,26 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-
+	"io"
 	"log"
 	"os"
 	"strconv"
 )
 
 func SearchRow() {
-	
-
+	logfile, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+if err != nil {
+    log.Fatal(err)
+}
+logger := log.New(io.MultiWriter(os.Stdout, logfile), "INFO: ", log.Ldate|log.Ltime)
+	logger.Println("Opening CSV")
 	// Open the CSV file
 	file, err := os.Open(CsvFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
-
+	logger.Println("Opened")
 	// Create a CSV reader
 	reader := csv.NewReader(file)
 
@@ -33,12 +37,12 @@ func SearchRow() {
 	for i, colName := range header {
 		colIndex[colName] = i
 	}
-
+	logger.Println("Gathering User Input")
 	// Prompt the user for a row number
 	fmt.Print("Enter the row number: ")
 	var rowNumberInput string
 	fmt.Scanln(&rowNumberInput)
-
+	logger.Printf("Input gathered. Row: %s", rowNumberInput)
 	// Convert the user input to an integer
 	rowNumber, err := strconv.Atoi(rowNumberInput)
 	rowNumber = rowNumber - 2

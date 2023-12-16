@@ -1,20 +1,23 @@
-package main 
+package main
 
 import (
-	"fmt"
-	"encoding/csv"
-	"strings"
-	"log"
-	"io"
 	"bufio"
+	"encoding/csv"
+	"fmt"
+	"io"
+	"log"
 	"os"
+	"strings"
 )
 
 func CheckRoute() {
 
-	logger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
-
-	logfile, err := os.Create("app.log")
+	logfile, err := os.OpenFile("app.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+if err != nil {
+    log.Fatal(err)
+}
+logger := log.New(io.MultiWriter(os.Stdout, logfile), "INFO: ", log.Ldate|log.Ltime)
+	logger.Println("Opening CSV")
 
 	if err != nil {
 		log.Fatal(err)
@@ -22,7 +25,6 @@ func CheckRoute() {
 	defer logfile.Close()
 	logger.SetOutput(logfile)
 
-	
 	file, err := os.Open(CsvFileName)
 	if err != nil {
 		log.Fatal(err)
@@ -59,7 +61,7 @@ func CheckRoute() {
 	if scanner.Scan() {
 		criteria3 = scanner.Text()
 	}
-
+	logger.Printf("Scan complete. Origin: '%s' Dest: '%s' Route: '%s'", ori, dest, criteria3)
 	var matchingRows []RouteData
 
 	for {
@@ -99,7 +101,6 @@ func CheckRoute() {
 			}
 		}
 	}
-	
 
 	if correctNum <= 0 {
 		fmt.Printf("You entered this '%s', Here is the correct route(s): \n", criteria3)

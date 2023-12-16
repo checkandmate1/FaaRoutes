@@ -20,12 +20,25 @@ type RouteData struct {
 }
 
 var base string
-
-
+var logger *log.Logger
 var CsvFileName string
+var playAgain bool = true 
+var userChoice string
+func playAgainLogic() {
+	fmt.Println("Would you like to use again?\n y or n")
+	fmt.Scanln(&userChoice)
+	if userChoice == "y" {
+		fmt.Println("Starting Again!")
+	} else if userChoice == "n" {
+		os.Exit(0)
+	} else {
+		fmt.Println("Invalid")
+	}
+}
+
 
 func main() {
-	
+
 	executablePath, err := os.Executable()
 	if err != nil {
 		fmt.Println("Error getting executable path:", err)
@@ -41,17 +54,7 @@ func main() {
 	fmt.Println(filePath)
 	CsvFileName = filePath
 
-	logger := log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime)
-
-	logfile, err := os.Create("app.log")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer logfile.Close()
-	logger.SetOutput(logfile)
-
-	logger.Println("Scanning Choice")
+	for playAgain {
 	var choice int
 	fmt.Println("1 or 2 or 3 or 4")
 	fmt.Scanln(&choice)
@@ -70,5 +73,8 @@ func main() {
 	} else {
 		fmt.Println("Invalid Choice")
 	}
+	playAgainLogic()
+	}
 
+	
 }
